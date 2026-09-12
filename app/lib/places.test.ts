@@ -1,5 +1,4 @@
-import { afterEach } from "node:test";
-import { describe, it, vi } from "vitest";
+import { describe, expect, it, vi, afterEach } from "vitest";
 import { searchPlaces } from "./places";
 
 // Placeholders for the searchPlaces pagination behavior — the same cases we
@@ -24,21 +23,96 @@ function fakePlace(overrides = {}) {
 function fakeResponse(body: object){
   return { ok: true, json: async() => body} as Response;
 }
-// fetch returns a Reponse object of shaep { ok: boolean, .json(): returns body}
+// fetch returns a Reponse object of shape { ok: boolean, .json(): returns body}
 
+function makeSequentialFetchMock(pages: { count: number; hasNextPage: boolean }[]) {
+  let callIndex = 0; // initially 0
+
+  // we start mocking an implementation for this function
+  return vi.fn().mockImplementation(async () => {
+    const page = pages[callIndex]; // we have a page at 0, 1, 2...
+    callIndex++; // increment it to 1, then 2, ... each time fetch is called
+    return fakeResponse({ 
+      // with fakePlace info 
+      places: Array.from({ length: page.count }, (_, i) => // a length is enough
+      // to make an array like object to an array
+        fakePlace({ id: `place-${callIndex}-${i}` }) 
+        // the position in the count and callIndex give name to the place
+      ),
+      ...(page.hasNextPage ? { nextPageToken: `token-${callIndex}` } : {}), 
+      // we generate the nextPageToken so taht fetch runs again according to
+      // searchPlaces function
+
+      //also the "..." is spreading, ...{} does nothing but ...{a} appends the 
+      // properties in {a} to the enclosing object ( fakePlace({}))
+    });
+
+  });
+}
+
+// function to assign to a count of returned places and hasnextPage boolean
+// a call index meaning how many times fetch has to be called for it
+// it increases teh call index every time we finish the page count 
 
 
 describe("searchPlaces", () => {
-  afterEach(() => vi.restoreAllMocks());
-  it.todo(
+  afterEach(() => {
+    vi.unstubAllGlobals(); // undo the fetch swap so it doesn't leak into the next test
+  });
+  it(
     "returns all results when a single page covers everything (< 20 results, no pagination needed)",
-    () => {
+    async () => {
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(fakeResponse({ places: [fakePlace(), fakePlace({ id: "place2" })] }));
+      
+        vi.stubGlobal("fetch", fetchMock); //every fetch call now uses fetchMock isntead
+      // as we have mocked its resolved value, we will get that instead as resukt
+
+      //then result from searchPlaces will come from mockFetch resolved value, which is a
+      //fakeResponse
+
+      const result = await searchPlaces("restaurantes", "Madrid");
+
+      expect(result).toHaveLength(2);
+      expect(fetchMock).toHaveBeenCalledTimes(1); 
+        // proves it didn't loop for more pages
+
 
     }
   );
-  it.todo("pages through multiple calls but stops once it has 50 results");
-  it.todo(
-    "stops once Google returns no nextPageToken, even with fewer than 50 results (small-town case) — should NOT restart from page 1"
+  it("pages through multiple calls but stops once it has 50 results", async () => {
+    
+    const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: false},
+    ]);
+
+    //fetchMock is the fetch inside SearchPlaces.
+    // it will only be called once per loop, each with a different set of places on page
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurants", "Madrid");
+    expect(result).toHaveLength(50);  
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+  it(
+    "stops once Google returns no nextPageToken, even with fewer than 50 results (small-town case) — should NOT restart from page 1",
+    async () => {
+      const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 10, hasNextPage: false},
+    ]);
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurants", "Madrid");
+
+    expect(result).toHaveLength(30);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  
+    }
   );
   it.todo("does not loop forever when there are 0 results");
   it.todo("trims the final result to exactly 50 when the last page overshoots");
