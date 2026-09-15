@@ -20,8 +20,12 @@ function fakePlace(overrides = {}) {
 }
 
 
-function fakeResponse(body: object){
-  return { ok: true, json: async() => body} as Response;
+
+function fakeResponse(body: object, ok?: boolean, status?: number){
+  return { 
+    ok: ok ?? true,
+     json: async() => body,
+    status: status ?? 200} as Response;
 }
 // fetch returns a Reponse object of shape { ok: boolean, .json(): returns body}
 
@@ -40,7 +44,7 @@ function makeSequentialFetchMock(pages: { count: number; hasNextPage: boolean }[
         // the position in the count and callIndex give name to the place
       ),
       ...(page.hasNextPage ? { nextPageToken: `token-${callIndex}` } : {}), 
-      // we generate the nextPageToken so taht fetch runs again according to
+      // we generate the nextPageToken so that fetch runs again according to
       // searchPlaces function
 
       //also the "..." is spreading, ...{} does nothing but ...{a} appends the 
@@ -59,6 +63,11 @@ describe("searchPlaces", () => {
   afterEach(() => {
     vi.unstubAllGlobals(); // undo the fetch swap so it doesn't leak into the next test
   });
+
+
+
+
+
   it(
     "returns all results when a single page covers everything (< 20 results, no pagination needed)",
     async () => {
@@ -80,6 +89,11 @@ describe("searchPlaces", () => {
 
     }
   );
+
+
+
+
+
   it("pages through multiple calls but stops once it has 50 results", async () => {
     
     const fetchMock = makeSequentialFetchMock([
@@ -97,6 +111,11 @@ describe("searchPlaces", () => {
     expect(result).toHaveLength(50);  
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
+
+
+
+
+
   it(
     "stops once Google returns no nextPageToken, even with fewer than 50 results (small-town case) — should NOT restart from page 1",
     async () => {
@@ -114,10 +133,74 @@ describe("searchPlaces", () => {
   
     }
   );
-  it.todo("does not loop forever when there are 0 results");
-  it.todo("trims the final result to exactly 50 when the last page overshoots");
-  it.todo("throws when the Places API responds with a non-ok status");
-  it.todo(
-    "throws when the response body doesn't match the expected schema (e.g. missing required place fields)"
+
+
+
+
+  it("does not loop forever when there are 0 results", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(fakeResponse({ places: [] }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurants", "Madrid");
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(result).toHaveLength(0)
+
+  });
+
+
+
+
+  it("trims the final result to exactly 50 when the last page overshoots", async () => {
+    
+    const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true}
+    ]);
+
+    vi.stubGlobal("fetch", fetchMock);
+
+
+    const result = await searchPlaces("restaurantes", "madrid");
+
+
+    expect(result).toHaveLength(50);
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
+
+
+
+
+
+
+  it("throws when the Places API responds with a non-ok status", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(fakeResponse({places: []}, false, 400 ));
+
+    vi.stubGlobal("fetch", fetchMock)
+    
+    await expect(searchPlaces("restaurantes", "Madrid")).rejects.toThrow(); 
+      // basically the promise it returns (await searchPlaces) rejects, which is the
+      // same for throwing on a synchronous function
+      // so we have promise -> result (throws) -> so it is a rejected promise
+      // and carries the error as the reason
+
+  });
+
+
+  it(
+    "throws when the response body doesn't match the expected schema (e.g. missing required place fields)",
+    async () => {
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(fakeResponse({ places: "not matching the zod schema"}));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(searchPlaces("restaurantes", "madrid")).rejects.toThrow();
+    }
   );
 });
