@@ -21,6 +21,8 @@ function fakePlace(overrides = {}) {
 
 
 
+
+
 function fakeResponse(body: object, ok?: boolean, status?: number){
   return { 
     ok: ok ?? true,
@@ -203,4 +205,41 @@ describe("searchPlaces", () => {
       await expect(searchPlaces("restaurantes", "madrid")).rejects.toThrow();
     }
   );
+
+
+
+
+  it.todo("excludeids filters a place that is already known", async () => {
+
+  });
+
+
+
+
+
+
+
+  it.todo("when everything on a page is excluded, the loop keeps running until length = 50",
+    async () => {
+
+    }
+  );
+
+
+
+
+  
+
+  it.todo("if all results are excluded, successfully return [] (not rejected)", async () => {
+
+  });
+
+
+
+
+
+
+  it.todo("emitted excludeIds works fine", async () => {
+    
+  })
 });

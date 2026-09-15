@@ -21,7 +21,7 @@ const ResponseSchema = z.object({
 })
 
 
-export async function searchPlaces(keyword:string, location: string){
+export async function searchPlaces(keyword:string, location: string, excludeIds?: Set<string>){
     const results: z.infer<typeof PlaceSchema>[] = [];
     let pageToken: string | undefined = undefined;
     
@@ -50,8 +50,9 @@ export async function searchPlaces(keyword:string, location: string){
         const places = data.places ?? [];
         const nextPageToken = data.nextPageToken ?? undefined;
         const page = ResponseSchema.parse({places, nextPageToken});
-
-        results.push(...page.places)
+        
+         results.push(...page.places.filter((p) => !(excludeIds?.has(p.id))))
+        // enough as if exclude ids is undefined everything will 
         pageToken = page.nextPageToken;
 
 
