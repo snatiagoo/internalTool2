@@ -21,8 +21,6 @@ function fakePlace(overrides = {}) {
 
 
 
-
-
 function fakeResponse(body: object, ok?: boolean, status?: number){
   return { 
     ok: ok ?? true,
@@ -55,10 +53,14 @@ function makeSequentialFetchMock(pages: { count: number; hasNextPage: boolean }[
 
   });
 }
-
 // function to assign to a count of returned places and hasnextPage boolean
 // a call index meaning how many times fetch has to be called for it
 // it increases teh call index every time we finish the page count 
+
+
+
+
+
 
 
 describe("searchPlaces", () => {
@@ -209,8 +211,17 @@ describe("searchPlaces", () => {
 
 
 
-  it.todo("excludeids filters a place that is already known", async () => {
+  it("excludeids filters a place that is already known", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(fakeResponse({places: [fakePlace(), fakePlace({id: "place2"})]}));
 
+    const excludedIds = new Set(["place2"]);
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "madrid", excludedIds);
+
+    expect(result).toHaveLength(1);
   });
 
 
@@ -219,8 +230,27 @@ describe("searchPlaces", () => {
 
 
 
-  it.todo("when everything on a page is excluded, the loop keeps running until length = 50",
+  it("when everything on a page is excluded, the loop keeps running until length = 50",
     async () => {
+      const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true}
+    ]);
+
+    const excludedIds = 
+    new Set(
+      ["place-1-0", "place-1-1", "place-1-2", "place-1-3", "place-1-4",
+        "place-1-5", "place-1-6", "place-1-7", "place-1-8", "place-1-9", "place-1-10"]
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+
+    expect(result).toHaveLength(50);
+    expect(fetch).toHaveBeenCalledTimes(4);
 
     }
   );
@@ -230,7 +260,23 @@ describe("searchPlaces", () => {
 
   
 
-  it.todo("if all results are excluded, successfully return [] (not rejected)", async () => {
+  it("if all results are excluded, successfully return [] (not rejected)", async () => {
+    const fetchMock = makeSequentialFetchMock([
+      {count: 10, hasNextPage: false},
+    ]);
+
+
+    const excludedIds = 
+    new Set(
+      ["place-1-0", "place-1-1", "place-1-2", "place-1-3", "place-1-4",
+        "place-1-5", "place-1-6", "place-1-7", "place-1-8", "place-1-9"]
+    );
+
+
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+
+    expect(result).toHaveLength(0);
 
   });
 
@@ -238,8 +284,19 @@ describe("searchPlaces", () => {
 
 
 
+  it("empty excludeIds works fine", async () => {
+    const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 10, hasNextPage: false},
+    ]);
 
-  it.todo("emitted excludeIds works fine", async () => {
+    const excludedIds = new Set([]);
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+
+    expect(result).toHaveLength(30);
     
   })
 });
