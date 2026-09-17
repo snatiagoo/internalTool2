@@ -1,5 +1,7 @@
+
 import {
   serial,
+  real,
   integer,
   pgTable,
   text,
@@ -15,7 +17,7 @@ export const placesTable = pgTable("places",{
     displayName: text("display_name").notNull(),
     formattedAddress: text("formatted_address").notNull(),
     primaryTypeDisplayName: text("primary_type_display_name").notNull(),
-    rating: integer("rating"),
+    rating: real("rating"),
     userRatingCount: integer("rating_count"),
     googleMapsUri: text("google_maps_url").notNull(),
 }, (table) =>[
