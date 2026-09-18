@@ -12,7 +12,7 @@ import {
 
 export const placesTable = pgTable("places",{
     id: serial("id").primaryKey(),
-    projectId: integer("project_id").notNull().references(() => projects.id),
+    projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade"}),
     googlePlacesId: text("google_places_id").notNull(),
     displayName: text("display_name").notNull(),
     formattedAddress: text("formatted_address").notNull(),

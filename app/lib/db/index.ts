@@ -4,7 +4,6 @@ import { createInsertSchema, createSelectSchema, createUpdateSchema } from "driz
 import { placesTable, projects } from "./schema";
 import * as schema from "./schema"
 import z from "zod";
-import { projectShutdown } from "next/dist/build/swc/generated-native";
 
 
 const sql = neon(process.env.DATABASE_URL!);
