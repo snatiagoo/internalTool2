@@ -12,7 +12,7 @@ import {
 
 export const placesTable = pgTable("places",{
     id: serial("id").primaryKey(),
-    projectId: integer("project_id").notNull(),
+    projectId: integer("project_id").notNull().references(() => projects.id),
     googlePlacesId: text("google_places_id").notNull(),
     displayName: text("display_name").notNull(),
     formattedAddress: text("formatted_address").notNull(),
@@ -26,3 +26,11 @@ export const placesTable = pgTable("places",{
     // that is, no row can have both as those of another row
     ]
 )
+
+
+
+export const projects = pgTable("projects", {
+    id: serial("id").primaryKey(),
+    projectName: text("project_name").notNull(),
+    icp: text("icp")
+})

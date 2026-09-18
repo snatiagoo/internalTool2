@@ -1,21 +1,22 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from 'drizzle-orm/neon-http';
-import { createUpdateSchema } from "drizzle-zod";
-import { placesTable } from "./schema";
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
+import { placesTable, projects } from "./schema";
 import * as schema from "./schema"
 import z from "zod";
+import { projectShutdown } from "next/dist/build/swc/generated-native";
 
 
 const sql = neon(process.env.DATABASE_URL!);
 
 
-const db = drizzle(sql, {schema});
+export const db = drizzle(sql, {schema});
 
 
 // drizzle-zod package
 // const insertPlaceSchema = createInsertSchema(placesTable);
 
-const dbPlaceSaveSchema = z.object({
+export const dbPlaceSaveSchema = z.object({
     projectId: z.number().int(),
     googlePlacesId: z.string(),
     displayName: z.string(),
@@ -28,7 +29,7 @@ const dbPlaceSaveSchema = z.object({
 
 //const selectPlaceSchema = createSelectSchema(placesTable);
 
-const dbPlaceFetchSchema = z.object({
+export const dbPlaceFetchSchema = z.object({
     id: z.number().int(),
     projectId: z.number().int(),
     googlePlacesId: z.string(),
@@ -44,8 +45,22 @@ const dbPlaceFetchSchema = z.object({
 
 
 // and if we wanted to update any row (maybe necessary in the future):
-const updatePlaceSchema = createUpdateSchema(placesTable);
+export const updatePlaceSchema = createUpdateSchema(placesTable);
 // shoudl use these functions form the package in case
 // I ever update the tables (remove/add columns), as they are synced
 // so no need to manually mdoify the defined schemas above
+
+
+
+// Same zod Schema pattern for projects table schemas
+export const insertProjectSchema = createInsertSchema(projects);
+
+export const selectProjectSchema = createSelectSchema(projects);
+
+export const updateProjectSchema = createUpdateSchema(projects);
+
+
+
+
+
 
