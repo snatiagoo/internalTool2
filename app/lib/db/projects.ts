@@ -1,6 +1,7 @@
 
 
 import { db} from "."; 
+import { desc } from "drizzle-orm";
 import { projects } from "./schema";
 
 
@@ -17,3 +18,12 @@ export async function createProject(data: {projectName: string, icp: string}){
     }).returning();
 
 }
+
+
+
+export async function getProjects(){
+    const p = await db.select().from(projects).orderBy(desc(projects.id));
+
+    return p;
+}
+

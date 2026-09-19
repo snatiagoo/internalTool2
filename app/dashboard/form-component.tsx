@@ -1,11 +1,28 @@
 
 'use client';
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 // remember server actions are allowed inside client files
 // and also async functions insdie the component
 
 
 import { createProjectOrchestrator } from "../lib/projects/actions"
+
+// useFormStatus reads the state of the <form> this component is rendered inside,
+// so it has to be its own component (it can't be called in the component that renders the <form>)
+function SubmitButton(){
+    const { pending } = useFormStatus(); // this is taht thing
+
+    return(
+        <button
+            type="submit"
+            disabled={pending} // so if pending its disabled
+            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50"
+        >
+            {pending ? "Creating..." : "Create"}
+        </button>
+    )
+}
 
 export function ProjectModalComponent(){
     const [isOpen, setOpen] = useState(false);
@@ -72,12 +89,7 @@ export function ProjectModalComponent(){
                             >
                                 Cancel
                             </button>
-                            <button
-                                type="submit"
-                                className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
-                            >
-                                Create
-                            </button>
+                            <SubmitButton />
                         </div>
                     </form>
                 </div>
