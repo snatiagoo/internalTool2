@@ -2,7 +2,7 @@
 
 import z from "zod";
 
-const PlaceSchema = z.object({
+ const PlaceSchema = z.object({
     id: z.string(),
     displayName: z.object({
         text: z.string(),
@@ -14,6 +14,8 @@ const PlaceSchema = z.object({
     userRatingCount: z.optional(z.number()),
     googleMapsUri: z.string(),
 })
+
+export type Place = z.infer<typeof PlaceSchema>;
 
 const ResponseSchema = z.object({
     places: z.array(PlaceSchema),

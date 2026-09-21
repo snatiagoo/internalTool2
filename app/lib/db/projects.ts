@@ -1,8 +1,8 @@
 
 
 import { db} from "."; 
-import { desc } from "drizzle-orm";
-import { projects } from "./schema";
+import { desc, eq } from "drizzle-orm";
+import { placesTable, projects } from "./schema";
 
 
 
@@ -26,4 +26,5 @@ export async function getProjects(){
 
     return p;
 }
+
 
