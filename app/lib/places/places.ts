@@ -9,7 +9,11 @@ import z from "zod";
         languageCode: z.string()
     }),
     formattedAddress: z.string(),
-    primaryTypeDisplayName: z.string(),
+    primaryTypeDisplayName: z.optional(z.object(
+        {
+            text: z.string(),
+            languageCode: z.string() 
+        })),
     rating: z.optional(z.number()),
     userRatingCount: z.optional(z.number()),
     googleMapsUri: z.string(),

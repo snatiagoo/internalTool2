@@ -4,6 +4,7 @@ import {
   real,
   integer,
   pgTable,
+  jsonb,
   text,
   unique,
 } from "drizzle-orm/pg-core";
@@ -16,7 +17,7 @@ export const placesTable = pgTable("places",{
     googlePlacesId: text("google_places_id").notNull(),
     displayName: text("display_name").notNull(),
     formattedAddress: text("formatted_address").notNull(),
-    primaryTypeDisplayName: text("primary_type_display_name").notNull(),
+    primaryTypeDisplayName: text("primary_type_display_name"), 
     rating: real("rating"),
     userRatingCount: integer("rating_count"),
     googleMapsUri: text("google_maps_url").notNull(),

@@ -1,0 +1,1 @@
+ALTER TABLE "places" ALTER COLUMN "primary_type_display_name" DROP NOT NULL;

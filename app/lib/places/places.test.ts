@@ -13,7 +13,7 @@ function fakePlace(overrides = {}) {
     id: "place1",
     displayName: { text: "Test Business", languageCode: "es" },
     formattedAddress: "Calle Falsa 123, Madrid",
-    primaryTypeDisplayName: "restaurant",
+    primaryTypeDisplayName: {text: "restaurante", languageCode: "codigo"},
     googleMapsUri: "https://maps.google.com/?cid=1",
     ...overrides,
   };
@@ -298,5 +298,16 @@ describe("searchPlaces", () => {
 
     expect(result).toHaveLength(30);
     
+  })
+
+  it("doesnt error on undefined primaryTypeDisplayName", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(fakeResponse({places: [fakePlace({primaryTypeDisplayName: undefined})]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "madrid");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].primaryTypeDisplayName).toBe(undefined)
   })
 });
