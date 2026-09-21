@@ -2,18 +2,24 @@
 
 import z from "zod";
 
-const PlaceSchema = z.object({
+ const PlaceSchema = z.object({
     id: z.string(),
     displayName: z.object({
         text: z.string(),
         languageCode: z.string()
     }),
     formattedAddress: z.string(),
-    primaryTypeDisplayName: z.string(),
+    primaryTypeDisplayName: z.optional(z.object(
+        {
+            text: z.string(),
+            languageCode: z.string() 
+        })),
     rating: z.optional(z.number()),
     userRatingCount: z.optional(z.number()),
     googleMapsUri: z.string(),
 })
+
+export type Place = z.infer<typeof PlaceSchema>;
 
 const ResponseSchema = z.object({
     places: z.array(PlaceSchema),
@@ -21,7 +27,7 @@ const ResponseSchema = z.object({
 })
 
 
-export async function searchPlaces(keyword:string, location: string){
+export async function searchPlaces(keyword:string, location: string, excludeIds?: Set<string>){
     const results: z.infer<typeof PlaceSchema>[] = [];
     let pageToken: string | undefined = undefined;
     
@@ -50,8 +56,9 @@ export async function searchPlaces(keyword:string, location: string){
         const places = data.places ?? [];
         const nextPageToken = data.nextPageToken ?? undefined;
         const page = ResponseSchema.parse({places, nextPageToken});
-
-        results.push(...page.places)
+        
+         results.push(...page.places.filter((p) => !(excludeIds?.has(p.id))))
+        // enough as if exclude ids is undefined everything will 
         pageToken = page.nextPageToken;
 
 

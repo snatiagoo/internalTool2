@@ -13,7 +13,7 @@ function fakePlace(overrides = {}) {
     id: "place1",
     displayName: { text: "Test Business", languageCode: "es" },
     formattedAddress: "Calle Falsa 123, Madrid",
-    primaryTypeDisplayName: "restaurant",
+    primaryTypeDisplayName: {text: "restaurante", languageCode: "codigo"},
     googleMapsUri: "https://maps.google.com/?cid=1",
     ...overrides,
   };
@@ -53,10 +53,14 @@ function makeSequentialFetchMock(pages: { count: number; hasNextPage: boolean }[
 
   });
 }
-
 // function to assign to a count of returned places and hasnextPage boolean
 // a call index meaning how many times fetch has to be called for it
 // it increases teh call index every time we finish the page count 
+
+
+
+
+
 
 
 describe("searchPlaces", () => {
@@ -203,4 +207,107 @@ describe("searchPlaces", () => {
       await expect(searchPlaces("restaurantes", "madrid")).rejects.toThrow();
     }
   );
+
+
+
+
+  it("excludeids filters a place that is already known", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(fakeResponse({places: [fakePlace(), fakePlace({id: "place2"})]}));
+
+    const excludedIds = new Set(["place2"]);
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "madrid", excludedIds);
+
+    expect(result).toHaveLength(1);
+  });
+
+
+
+
+
+
+
+  it("when everything on a page is excluded, the loop keeps running until length = 50",
+    async () => {
+      const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true},
+      {count: 20, hasNextPage: true}
+    ]);
+
+    const excludedIds = 
+    new Set(
+      ["place-1-0", "place-1-1", "place-1-2", "place-1-3", "place-1-4",
+        "place-1-5", "place-1-6", "place-1-7", "place-1-8", "place-1-9", "place-1-10"]
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+
+    expect(result).toHaveLength(50);
+    expect(fetch).toHaveBeenCalledTimes(4);
+
+    }
+  );
+
+
+
+
+  
+
+  it("if all results are excluded, successfully return [] (not rejected)", async () => {
+    const fetchMock = makeSequentialFetchMock([
+      {count: 10, hasNextPage: false},
+    ]);
+
+
+    const excludedIds = 
+    new Set(
+      ["place-1-0", "place-1-1", "place-1-2", "place-1-3", "place-1-4",
+        "place-1-5", "place-1-6", "place-1-7", "place-1-8", "place-1-9"]
+    );
+
+
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+
+    expect(result).toHaveLength(0);
+
+  });
+
+
+
+
+
+  it("empty excludeIds works fine", async () => {
+    const fetchMock = makeSequentialFetchMock([
+      {count: 20, hasNextPage: true},
+      {count: 10, hasNextPage: false},
+    ]);
+
+    const excludedIds = new Set([]);
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+
+    expect(result).toHaveLength(30);
+    
+  })
+
+  it("doesnt error on undefined primaryTypeDisplayName", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(fakeResponse({places: [fakePlace({primaryTypeDisplayName: undefined})]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchPlaces("restaurantes", "madrid");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].primaryTypeDisplayName).toBe(undefined)
+  })
 });
