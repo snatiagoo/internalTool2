@@ -1,14 +1,18 @@
 "use client";
 
+import { searchAndSave } from "@/app/lib/db/places";
 import { useState } from "react";
 
-export default function Page() {
+export default function Page({params} : {params: Promise<{id: string}>}) {
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
 
-  function handleSubmit(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
+    const projetId = Number((await params).id);
     console.log({ keyword, location });
+
+    await searchAndSave(projetId, keyword, location);
   }
 
   return (
