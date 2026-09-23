@@ -1,6 +1,6 @@
 "use client";
 
-import { searchSaveOrchestrator } from "@/app/lib/projects/actions";
+import { searchSaveOrchestrator } from "@/lib/projects/actions";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 

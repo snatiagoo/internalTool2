@@ -1,6 +1,6 @@
-import { ProjectModalComponent } from "./dashboard/form-component";
-import { Project, ProjectComponent } from "./dashboard/project-component";
-import { getProjects } from "./lib/db/projects";
+import { ProjectModalComponent } from "../components/form-component";
+import { Project, ProjectComponent } from "../components/project-component";
+import { getProjects } from "../lib/db/projects";
 
 export default async function Dashboard(){
 

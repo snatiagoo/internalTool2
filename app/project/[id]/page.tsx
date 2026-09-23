@@ -1,4 +1,4 @@
-import { getPlacesByProjectId } from "@/app/lib/db/places";
+import { getPlacesByProjectId } from "@/lib/db/places";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
