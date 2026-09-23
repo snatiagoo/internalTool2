@@ -3,6 +3,7 @@
 import { createProject } from "../db/projects";
 import z from "zod";
 import { refresh } from "next/cache";
+import { searchAndSave } from "../db/places";
 
 const formProjectSchema = z.object({
     projectName: z.string(),
@@ -30,4 +31,13 @@ export async function createProjectOrchestrator(formData: FormData){
 
     return project;
     
+}
+
+
+export async function searchSaveOrchestrator(projectId: number, keyword: string, location: string){
+    if(!keyword.length && !location.length){
+        // what should I do about this?
+    }
+    const res = await searchAndSave(projectId, keyword, location);
+    return res;
 }
