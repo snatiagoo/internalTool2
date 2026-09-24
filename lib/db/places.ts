@@ -49,10 +49,10 @@ async function getExcludedIds(projectId: number){
 
 
 
-export async function searchAndSave(projectId: number, keyword: string, location: string){
+export async function searchAndSave(projectId: number, keyword: string, location: string, maxReviews?: number){
     const excludedIds = await getExcludedIds(projectId);
 
-    const places = await searchPlaces(keyword, location, excludedIds)
+    const places = await searchPlaces(keyword, location, maxReviews ,excludedIds)
 
     const res = await savePlacesById(projectId, places);
 

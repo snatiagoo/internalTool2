@@ -34,10 +34,7 @@ export async function createProjectOrchestrator(formData: FormData){
 }
 
 
-export async function searchSaveOrchestrator(projectId: number, keyword: string, location: string){
-    if(!keyword.length && !location.length){
-        // what should I do about this?
-    }
-    const res = await searchAndSave(projectId, keyword, location);
+export async function searchSaveOrchestrator(projectId: number, keyword: string, location: string, maxReviews?: number){
+    const res = await searchAndSave(projectId, keyword, location, maxReviews);
     return res;
 }
