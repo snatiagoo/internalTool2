@@ -15,6 +15,7 @@ function fakePlace(overrides = {}) {
     formattedAddress: "Calle Falsa 123, Madrid",
     primaryTypeDisplayName: {text: "restaurante", languageCode: "codigo"},
     googleMapsUri: "https://maps.google.com/?cid=1",
+    userRatingCount: 1000,
     ...overrides,
   };
 }
@@ -219,7 +220,7 @@ describe("searchPlaces", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await searchPlaces("restaurantes", "madrid", excludedIds);
+    const result = await searchPlaces("restaurantes", "madrid", undefined, excludedIds);
 
     expect(result).toHaveLength(1);
   });
@@ -247,7 +248,7 @@ describe("searchPlaces", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+    const result = await searchPlaces("restaurantes", "Madrid", undefined, excludedIds);
 
     expect(result).toHaveLength(50);
     expect(fetch).toHaveBeenCalledTimes(4);
@@ -274,7 +275,7 @@ describe("searchPlaces", () => {
 
 
     vi.stubGlobal("fetch", fetchMock);
-    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+    const result = await searchPlaces("restaurantes", "Madrid", undefined, excludedIds);
 
     expect(result).toHaveLength(0);
 
@@ -294,11 +295,11 @@ describe("searchPlaces", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await searchPlaces("restaurantes", "Madrid", excludedIds);
+    const result = await searchPlaces("restaurantes", "Madrid", undefined, excludedIds);
 
     expect(result).toHaveLength(30);
     
-  })
+  });
 
   it("doesnt error on undefined primaryTypeDisplayName", async () => {
     const fetchMock = vi.fn().mockResolvedValueOnce(fakeResponse({places: [fakePlace({primaryTypeDisplayName: undefined})]}));
@@ -309,5 +310,54 @@ describe("searchPlaces", () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].primaryTypeDisplayName).toBe(undefined)
+  });
+
+  it("doesnt error on no maxReviews", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(fakeResponse({places: [fakePlace(), fakePlace({id: "place-2"}), fakePlace({id: "place-3"})]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const excludedIds = new Set(["place-2"]);
+
+    const result = await searchPlaces("restaurantes", "madrid", undefined, excludedIds);
+
+    expect(result).toHaveLength(2);
+  });
+
+  it("it correctly removes more than max reviews places", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      fakeResponse({
+        places: [
+          fakePlace(), 
+          fakePlace({id: "place-2", userRatingCount: 500}), 
+          fakePlace({id: "place-3", userRatingCount: 1200})
+        ]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+
+    const result = await searchPlaces("restaurantes", "madrid", 900);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("place-2");
+  });
+
+  it("it correctly returns empty places if all more than maxReviews", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      fakeResponse({
+        places: [
+          fakePlace(), 
+          fakePlace({id: "place-2", userRatingCount: 2500}), 
+          fakePlace({id: "place-3", userRatingCount: 1200})
+        ]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+
+    const result = await searchPlaces("restaurantes", "madrid", 500);
+
+    expect(result).toHaveLength(0);
   })
+
+
 });
