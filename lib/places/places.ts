@@ -56,7 +56,7 @@ export async function searchPlaces(keyword:string, location: string, maxReviews?
         const places = data.places ?? [];
         const nextPageToken = data.nextPageToken ?? undefined;
         const page = ResponseSchema.parse({places, nextPageToken});
-        if(maxReviews) results.push(...page.places.filter((p) => (!(excludeIds?.has(p.id)) && (p.userRatingCount ?? 0) < maxReviews)))
+        if(maxReviews !== undefined) results.push(...page.places.filter((p) => (!(excludeIds?.has(p.id)) && (p.userRatingCount ?? 0) < maxReviews)))
         else results.push(...page.places.filter((p) => !(excludeIds?.has(p.id))))
         // enough as if exclude ids is undefined everything will 
         pageToken = page.nextPageToken;
