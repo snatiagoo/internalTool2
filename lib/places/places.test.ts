@@ -22,6 +22,7 @@ function fakePlace(overrides = {}) {
 
 
 
+
 function fakeResponse(body: object, ok?: boolean, status?: number){
   return { 
     ok: ok ?? true,
@@ -57,11 +58,6 @@ function makeSequentialFetchMock(pages: { count: number; hasNextPage: boolean }[
 // function to assign to a count of returned places and hasnextPage boolean
 // a call index meaning how many times fetch has to be called for it
 // it increases teh call index every time we finish the page count 
-
-
-
-
-
 
 
 describe("searchPlaces", () => {
@@ -355,6 +351,67 @@ describe("searchPlaces", () => {
 
 
     const result = await searchPlaces("restaurantes", "madrid", 500);
+
+    expect(result).toHaveLength(0);
+  });
+
+
+
+  it("It returns all the places if count is less than 2500", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      fakeResponse({
+        places: [
+          fakePlace({id: "place-1",userRatingCount: 500}), 
+          fakePlace({id: "place-2", userRatingCount: 500}), 
+          fakePlace({id: "place-3", userRatingCount: 400})
+        ]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+
+    const result = await searchPlaces("restaurantes", "madrid", 900, undefined, async () => {return 2000});
+
+    expect(result).toHaveLength(3);
+  });
+
+
+
+  it("It breaks midway if count reaches 2500 while searching", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      fakeResponse({
+        places: [
+          fakePlace({id: "place-1",userRatingCount: 500}), 
+          fakePlace({id: "place-2", userRatingCount: 500}), 
+          fakePlace({id: "place-3", userRatingCount: 400})
+        ]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+
+    const result = await searchPlaces("restaurantes", "madrid", 900, undefined, async () => {return 2499});
+
+    expect(result).toHaveLength(3);
+
+
+
+  });
+
+
+
+
+  it("It doesnt search once 2500 is surpassed after a search", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      fakeResponse({
+        places: [
+          fakePlace({id: "place-1",userRatingCount: 500}), 
+          fakePlace({id: "place-2", userRatingCount: 500}), 
+          fakePlace({id: "place-3", userRatingCount: 400})
+        ]}));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+
+    const result = await searchPlaces("restaurantes", "madrid", 900, undefined, async () => {return 2501});
 
     expect(result).toHaveLength(0);
   })

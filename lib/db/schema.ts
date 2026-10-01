@@ -4,7 +4,6 @@ import {
   real,
   integer,
   pgTable,
-  jsonb,
   text,
   unique,
 } from "drizzle-orm/pg-core";
@@ -27,6 +26,13 @@ export const placesTable = pgTable("places",{
     // that is, no row can have both as those of another row
     ]
 )
+
+
+
+export const monthlyCount = pgTable("monthly_count", {
+    month: text("month").primaryKey(),
+    count: integer("count").notNull(),
+})
 
 
 

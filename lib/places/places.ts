@@ -27,12 +27,24 @@ const ResponseSchema = z.object({
 })
 
 
-export async function searchPlaces(keyword:string, location: string, maxReviews?: number, excludeIds?: Set<string>){
+
+
+export async function searchPlaces(
+    keyword:string, 
+    location: string, 
+    maxReviews?: number, 
+    excludeIds?: Set<string>,
+    recordUsage?: () => Promise<number>
+
+){
     const results: z.infer<typeof PlaceSchema>[] = [];
-    let pageToken: string | undefined = undefined;
-    
+    let pageToken: string | undefined = undefined;    
 
     do{
+        if (recordUsage) { 
+            const currentCount = await recordUsage(); 
+            if (currentCount > 2500) break;
+        }
         const query = `${keyword} in ${location}`;
         const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
         method: "POST",

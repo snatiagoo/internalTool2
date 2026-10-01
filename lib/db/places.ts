@@ -3,7 +3,9 @@
 import { db } from ".";
 import { Place, searchPlaces } from "../places/places";
 import { placesTable } from "./schema";
+import { monthlyCount } from "../db/schema";
 import { eq,desc } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 
 
@@ -48,11 +50,30 @@ async function getExcludedIds(projectId: number){
 }
 
 
+async function incrementMonthlyCount(month: string): Promise<number>{
+    
+    const [row] = await db.insert(monthlyCount).values({month, count: 1})
+        .onConflictDoUpdate({target: monthlyCount.month, set: 
+            {
+                count: sql`${monthlyCount.count} + 1`
+            }
+        }
+    ).returning();
+
+    return row.count;
+    
+}
+
+
 
 export async function searchAndSave(projectId: number, keyword: string, location: string, maxReviews?: number){
     const excludedIds = await getExcludedIds(projectId);
 
-    const places = await searchPlaces(keyword, location, maxReviews ,excludedIds)
+
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    const places = await searchPlaces(keyword, location, maxReviews ,excludedIds, ()=> incrementMonthlyCount(month))
 
     const res = await savePlacesById(projectId, places);
 
