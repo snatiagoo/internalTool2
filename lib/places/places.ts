@@ -27,12 +27,24 @@ const ResponseSchema = z.object({
 })
 
 
-export async function searchPlaces(keyword:string, location: string, maxReviews?: number, excludeIds?: Set<string>){
+
+
+export async function searchPlaces(
+    keyword:string, 
+    location: string, 
+    maxReviews?: number, 
+    excludeIds?: Set<string>,
+    recordUsage?: () => Promise<number>
+
+){
     const results: z.infer<typeof PlaceSchema>[] = [];
-    let pageToken: string | undefined = undefined;
-    
+    let pageToken: string | undefined = undefined;    
 
     do{
+        if (recordUsage) { 
+            const currentCount = await recordUsage(); 
+            if (currentCount > 2500) break;
+        }
         const query = `${keyword} in ${location}`;
         const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
         method: "POST",
@@ -56,7 +68,7 @@ export async function searchPlaces(keyword:string, location: string, maxReviews?
         const places = data.places ?? [];
         const nextPageToken = data.nextPageToken ?? undefined;
         const page = ResponseSchema.parse({places, nextPageToken});
-        if(maxReviews) results.push(...page.places.filter((p) => (!(excludeIds?.has(p.id)) && (p.userRatingCount ?? 0) < maxReviews)))
+        if(maxReviews !== undefined) results.push(...page.places.filter((p) => (!(excludeIds?.has(p.id)) && (p.userRatingCount ?? 0) < maxReviews)))
         else results.push(...page.places.filter((p) => !(excludeIds?.has(p.id))))
         // enough as if exclude ids is undefined everything will 
         pageToken = page.nextPageToken;
