@@ -1,4 +1,4 @@
-import { deletePlace, getPlacesByProjectId } from "@/lib/db/places";
+import { getPlacesByProjectId } from "@/lib/db/places";
 import { deletePlaceAction } from "@/lib/projects/actions";
 import Link from "next/link";
 import { notFound } from "next/navigation";
