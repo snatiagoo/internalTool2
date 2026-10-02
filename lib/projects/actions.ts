@@ -3,7 +3,7 @@
 import { createProject, deleteProject } from "../db/projects";
 import z from "zod";
 import { refresh } from "next/cache";
-import { searchAndSave } from "../db/places";
+import { deletePlace, searchAndSave } from "../db/places";
 
 const formProjectSchema = z.object({
     projectName: z.string(),
@@ -43,4 +43,9 @@ export async function searchSaveOrchestrator(projectId: number, keywords: string
 export async function deleteProjectAction(projectId: number){
     await deleteProject(projectId);
     refresh();    
+}
+
+export async function deletePlaceAction(placeId: number){
+    await deletePlace(placeId);
+    refresh();
 }

@@ -1,4 +1,5 @@
 import { deletePlace, getPlacesByProjectId } from "@/lib/db/places";
+import { deletePlaceAction } from "@/lib/projects/actions";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -74,14 +75,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                                             </a>
                                         </td>
                                         <td className="px-3 py-2 text-right">
-                                            <button
-                                                onClick={() => deletePlace(place.id)}
-                                                type="button"
-                                                aria-label="Delete place"
-                                                className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
-                                            >
-                                                Delete
-                                            </button>
+                                            <form action={deletePlaceAction.bind(null, place.id)}>
+                                                <button
+                                                    type="submit"
+                                                    aria-label="Delete place"
+                                                    className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </form>
+                                                
                                         </td>
                                     </tr>
                                 ))}
