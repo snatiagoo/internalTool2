@@ -1,9 +1,9 @@
 'use server';
 
-import { createProject } from "../db/projects";
+import { createProject, deleteProject } from "../db/projects";
 import z from "zod";
 import { refresh } from "next/cache";
-import { searchAndSave } from "../db/places";
+import { deletePlace, searchAndSave } from "../db/places";
 
 const formProjectSchema = z.object({
     projectName: z.string(),
@@ -34,7 +34,18 @@ export async function createProjectOrchestrator(formData: FormData){
 }
 
 
-export async function searchSaveOrchestrator(projectId: number, keyword: string, location: string, maxReviews?: number){
-    const res = await searchAndSave(projectId, keyword, location, maxReviews);
+export async function searchSaveOrchestrator(projectId: number, keywords: string[], location: string, maxReviews?: number){
+    const res = await searchAndSave(projectId, keywords, location, maxReviews);
     return res;
+}
+
+
+export async function deleteProjectAction(projectId: number){
+    await deleteProject(projectId);
+    refresh();    
+}
+
+export async function deletePlaceAction(placeId: number){
+    await deletePlace(placeId);
+    refresh();
 }

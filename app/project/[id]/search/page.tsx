@@ -1,6 +1,7 @@
 "use client";
 
 import { searchSaveOrchestrator } from "@/lib/projects/actions";
+import { BUSINESS_TYPE_KEYWORDS, BusinessType } from "@/lib/keywords/keywords";
 import { useState, useRef, use } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
@@ -29,6 +30,7 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
 
   const [count, setCount] = useState(0);
   const [showResult, setIsShown] = useState(false);
+  const [businessType, setBusinessType] = useState<BusinessType>("RESTAURANT");
   // useRef creates ref object, one that can be modified without changing state
   // hideTimer is a useRef that holds the timeout object at current
   // initially undefined
@@ -38,11 +40,14 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
     const projectId = Number((await params).id);
     const keyword = formData.get("keyword")?.toString() ?? "";
     const location = formData.get("location")?.toString() ?? "";
-    const maxReviews = 
+    const selectedType = formData.get("businessType")?.toString() as BusinessType;
+    const baseKeywords: readonly string[] = BUSINESS_TYPE_KEYWORDS[selectedType] ?? [];
+    const keywords = keyword.length > 0 ? [...baseKeywords, keyword] : [...baseKeywords];
+    const maxReviews =
       formData.get("maxReviews") == "" ?
        undefined
       : Number(formData.get("maxReviews"));
-    const res = await searchSaveOrchestrator(projectId, keyword, location, maxReviews);
+    const res = await searchSaveOrchestrator(projectId, keywords, location, maxReviews);
 
     setCount(res);
     setIsShown(true);
@@ -85,13 +90,35 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
 
         <form action={handleAction} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
+            <label htmlFor="businessType" className="text-sm font-medium">
+              Business type
+            </label>
+            <select
+              id="businessType"
+              name="businessType"
+              value={businessType}
+              onChange={(e) => setBusinessType(e.target.value as BusinessType)}
+              className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
+            >
+              {Object.keys(BUSINESS_TYPE_KEYWORDS).map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-muted">
+              Searches: {BUSINESS_TYPE_KEYWORDS[businessType].join(", ")}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-1">
             <label htmlFor="keyword" className="text-sm font-medium">
-              Business type / keyword
+              Additional keyword (optional)
             </label>
             <input
               id="keyword"
               name="keyword"
-              required={true}
+              required={false}
               type="text"
               placeholder="e.g. peluquerías"
               className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
