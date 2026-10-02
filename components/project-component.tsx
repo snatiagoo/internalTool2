@@ -1,4 +1,4 @@
-import { deleteProject } from "@/lib/db/projects";
+import { deleteProjectAction } from "@/lib/projects/actions";
 import Link from "next/link";
 
 
@@ -11,6 +11,7 @@ export type Project = {
 export function ProjectComponent({project} : {project: Project}){
 
     const id = project.id;
+    
 
 
     return(
@@ -25,14 +26,16 @@ export function ProjectComponent({project} : {project: Project}){
                     >
                         Open
                     </Link>
-                    <button
-                        type="button"
-                         onClick={() => deleteProject(id)}
-                        aria-label="Delete project"
-                        className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
-                    >
-                        Delete
-                    </button>
+                    <form action={deleteProjectAction.bind(null, id)}>
+                        <button
+                            type="submit"
+                            aria-label="Delete project"
+                            className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                        >
+                            Delete
+                        </button>
+                    </form>
+                        
                 </div>
             </td>
         </tr>

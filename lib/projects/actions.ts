@@ -1,6 +1,6 @@
 'use server';
 
-import { createProject } from "../db/projects";
+import { createProject, deleteProject } from "../db/projects";
 import z from "zod";
 import { refresh } from "next/cache";
 import { searchAndSave } from "../db/places";
@@ -37,4 +37,10 @@ export async function createProjectOrchestrator(formData: FormData){
 export async function searchSaveOrchestrator(projectId: number, keywords: string[], location: string, maxReviews?: number){
     const res = await searchAndSave(projectId, keywords, location, maxReviews);
     return res;
+}
+
+
+export async function deleteProjectAction(projectId: number){
+    await deleteProject(projectId);
+    refresh();    
 }
