@@ -20,7 +20,7 @@ export async function getPlacesByProjectId(projectId: number){
 export async function savePlacesById(projectId: number, places: Array<Place>){
 
     if(places.length === 0){
-        throw new Error("Empty places array, cannot write to DB");
+        return [];
     }
 
     const rows = places.map((p) => ({
@@ -66,20 +66,33 @@ async function incrementMonthlyCount(month: string): Promise<number>{
 
 
 
-export async function searchAndSave(projectId: number, keyword: string, location: string, maxReviews?: number){
+export async function searchAndSave(projectId: number, keywords: string[], location: string, maxReviews?: number){
     const excludedIds = await getExcludedIds(projectId);
 
 
     const now = new Date();
     const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const allPlaces: Place[] =[];
 
-    const places = await searchPlaces(keyword, location, maxReviews ,excludedIds, ()=> incrementMonthlyCount(month))
+    for(const keyword of keywords){
+        const rankPreference = Math.random() > 0.5 ? "RELEVANCE" : "DISTANCE";
+        const places = await searchPlaces(keyword, location, maxReviews ,excludedIds, ()=> incrementMonthlyCount(month), rankPreference)
+        for(const place of places){
+            allPlaces.push(place);
+            excludedIds.add(place.id);
+        }
+        
+    }
 
-    const res = await savePlacesById(projectId, places);
-
-
+    const res = await savePlacesById(projectId, allPlaces);
 
     return res.length;
 
 
+}
+
+
+
+export async function deletePlace(placeId: number){
+    await db.delete(placesTable).where(eq(placesTable.id, placeId));
 }

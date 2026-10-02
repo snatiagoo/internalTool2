@@ -34,7 +34,8 @@ export async function searchPlaces(
     location: string, 
     maxReviews?: number, 
     excludeIds?: Set<string>,
-    recordUsage?: () => Promise<number>
+    recordUsage?: () => Promise<number>,
+    rankPreference?: string
 
 ){
     const results: z.infer<typeof PlaceSchema>[] = [];
@@ -56,6 +57,7 @@ export async function searchPlaces(
         },
         body: JSON.stringify({ textQuery: query,
             pageSize: 20,
+            rankPreference: rankPreference,
             ...(pageToken ? { pageToken } : {}) }) // we add to the body we get the pageToken
             // so it would be {"places": [...], "nextPageToken":"..."}
         })
@@ -80,4 +82,3 @@ export async function searchPlaces(
     
 
 }
-

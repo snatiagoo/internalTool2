@@ -1,4 +1,4 @@
-import { getPlacesByProjectId } from "@/lib/db/places";
+import { deletePlace, getPlacesByProjectId } from "@/lib/db/places";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -50,6 +50,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                                     <th className="px-3 py-2 font-medium">Rating</th>
                                     <th className="px-3 py-2 font-medium">Reviews</th>
                                     <th className="px-3 py-2 font-medium">Maps</th>
+                                    <th className="px-3 py-2 font-medium"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,6 +72,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                                             >
                                                 Open
                                             </a>
+                                        </td>
+                                        <td className="px-3 py-2 text-right">
+                                            <button
+                                                onClick={() => deletePlace(place.id)}
+                                                type="button"
+                                                aria-label="Delete place"
+                                                className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

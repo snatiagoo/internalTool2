@@ -1,7 +1,7 @@
 
 
 import { db} from "."; 
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { projects } from "./schema";
 
 
@@ -28,3 +28,6 @@ export async function getProjects(){
 }
 
 
+export async function deleteProject(projectId: number){
+    await db.delete(projects).where(eq(projects.id, projectId));
+}

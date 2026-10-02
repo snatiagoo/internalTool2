@@ -34,7 +34,7 @@ export async function createProjectOrchestrator(formData: FormData){
 }
 
 
-export async function searchSaveOrchestrator(projectId: number, keyword: string, location: string, maxReviews?: number){
-    const res = await searchAndSave(projectId, keyword, location, maxReviews);
+export async function searchSaveOrchestrator(projectId: number, keywords: string[], location: string, maxReviews?: number){
+    const res = await searchAndSave(projectId, keywords, location, maxReviews);
     return res;
 }
