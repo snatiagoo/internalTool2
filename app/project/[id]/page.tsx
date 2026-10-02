@@ -19,29 +19,32 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
     return (
         <main>
-            <header className="flex gap-2 p-4">
-                <Link
-                    href="/"
-                    className="rounded-md border border-black/15 px-4 py-2 text-sm dark:border-white/20"
-                >
-                    Go back
-                </Link>
-                <Link
-                    href={`/project/${id}/search`}
-                    className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
-                >
-                    Search more
-                </Link>
+            <header className="flex items-center justify-between gap-2 border-b border-border bg-accent px-6 py-4">
+                <h1 className="text-lg font-semibold text-white">Prospectool</h1>
+                <div className="flex gap-2">
+                    <Link
+                        href="/"
+                        className="rounded-md border border-white/40 px-4 py-2 text-sm text-white hover:bg-white/10"
+                    >
+                        Go back
+                    </Link>
+                    <Link
+                        href={`/project/${id}/search`}
+                        className="rounded-md bg-white px-4 py-2 text-sm font-medium text-accent hover:bg-accent-subtle"
+                    >
+                        Search more
+                    </Link>
+                </div>
             </header>
 
-            <div className="px-4 pb-4">
+            <div className="p-6">
                 {places.length === 0 ? (
-                    <p className="text-sm opacity-70">No places saved to this project yet.</p>
+                    <p className="text-sm text-muted">No places saved to this project yet.</p>
                 ) : (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto rounded-md border border-border">
                         <table className="w-full min-w-180 border-collapse text-sm">
                             <thead>
-                                <tr className="border-b border-black/15 text-left dark:border-white/20">
+                                <tr className="border-b border-border bg-accent-subtle text-left">
                                     <th className="px-3 py-2 font-medium">Name</th>
                                     <th className="px-3 py-2 font-medium">Type</th>
                                     <th className="px-3 py-2 font-medium">Rating</th>
@@ -53,7 +56,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                                 {places.map((place) => (
                                     <tr
                                         key={place.id}
-                                        className="border-b border-black/10 even:bg-black/2 dark:border-white/10 dark:even:bg-white/3"
+                                        className="border-b border-border even:bg-accent-subtle/40"
                                     >
                                         <td className="px-3 py-2">{place.displayName}</td>
                                         <td className="px-3 py-2">{place.primaryTypeDisplayName ?? "—"}</td>
@@ -64,7 +67,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                                                 href={place.googleMapsUri}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="underline"
+                                                className="text-accent underline hover:text-accent-hover"
                                             >
                                                 Open
                                             </a>

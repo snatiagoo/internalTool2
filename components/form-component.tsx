@@ -17,7 +17,7 @@ function SubmitButton(){
         <button
             type="submit"
             disabled={pending} // so if pending its disabled
-            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
             {pending ? "Creating..." : "Create"}
         </button>
@@ -39,7 +39,7 @@ export function ProjectModalComponent(){
         <button
             onClick={() => setOpen(true)}
             aria-label="Create project"
-            className="fixed bottom-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-2xl text-background shadow-lg"
+            className="fixed bottom-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-2xl text-white shadow-lg hover:bg-accent-hover"
         >
             +
         </button>
@@ -64,7 +64,7 @@ export function ProjectModalComponent(){
                                 name="projectName"
                                 type="text"
                                 placeholder="e.g. Restaurants in Madrid"
-                                className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
+                                className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
                             />
                         </div>
 
@@ -77,7 +77,7 @@ export function ProjectModalComponent(){
                                 name="icp"
                                 rows={4}
                                 placeholder="Optional: who are you targeting?"
-                                className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
+                                className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
                             />
                         </div>
 
@@ -85,7 +85,7 @@ export function ProjectModalComponent(){
                             <button
                                 type="button"
                                 onClick={() => setOpen(false)}
-                                className="rounded-md border border-black/15 px-4 py-2 text-sm dark:border-white/20"
+                                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent-subtle"
                             >
                                 Cancel
                             </button>
