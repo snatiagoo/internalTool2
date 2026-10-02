@@ -13,7 +13,7 @@ function SubmitButton(){
         <button
             type="submit"
             disabled={pending} // so if pending its disabled
-            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
             {pending ? "Searching..." : "Search"}
         </button>
@@ -68,11 +68,16 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
   
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-4">
+    <main className="flex min-h-screen flex-1 flex-col">
+      <header className="border-b border-border bg-accent px-6 py-4">
+        <h1 className="text-lg font-semibold text-white">Prospectool</h1>
+      </header>
+
+      <div className="flex flex-1 flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Link
           href={`/project/${id}`}
-          className="mb-6 inline-block rounded-md border border-black/15 px-4 py-2 text-sm dark:border-white/20"
+          className="mb-6 inline-block rounded-md border border-border px-4 py-2 text-sm hover:bg-accent-subtle"
         >
           Back to project
         </Link>
@@ -89,7 +94,7 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
               required={true}
               type="text"
               placeholder="e.g. peluquerías"
-              className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
+              className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
 
@@ -103,7 +108,7 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
               required={true}
               type="text"
               placeholder="e.g. Valencia, España"
-              className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
+              className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
 
@@ -117,15 +122,16 @@ export default function Page({params} : {params: Promise<{id: string}>}) {
               required={false}
               type="text"
               placeholder="e.g. 2000"
-              className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
+              className="rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
 
           <SubmitButton />
         </form>
         <div>
-          {showResult && <p className="text-sm">Added {count} new places.</p>}
+          {showResult && <p className="text-sm font-medium text-accent">Added {count} new places.</p>}
         </div>
+      </div>
       </div>
     </main>
   );
